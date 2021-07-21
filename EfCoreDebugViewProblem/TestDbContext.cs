@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using EfCoreDebugViewProblem;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace EfRefData
+namespace EfCoreDebugViewProblem
 {
     public class TestDbContext : DbContext
     {
@@ -18,9 +17,23 @@ namespace EfRefData
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<GuidEntity>().HasData(new List<GuidEntity> {new GuidEntity {Id = Guid.Parse("305BFC5B-8492-467D-AFAF-408BD36366BD")}});
-            modelBuilder.Entity<LongEntity>().HasData(new List<LongEntity> {new LongEntity {Id = 1}});
-            modelBuilder.Entity<OtherLongEntity>().HasData(new List<OtherLongEntity> {new OtherLongEntity { Id = 1}});
+            modelBuilder.Entity<GuidEntity>(b =>
+            {
+                b.HasData(new List<GuidEntity> {new GuidEntity {Id = Guid.Parse("305BFC5B-8492-467D-AFAF-408BD36366BD")}});
+                b.OwnsOne(x => x.OwnedEntity).HasData(new List<object>
+                {
+                    new {GuidEntityId = Guid.Parse("305BFC5B-8492-467D-AFAF-408BD36366BD"), Nothing = string.Empty}
+                });
+            });
+            modelBuilder.Entity<LongEntity>(b =>
+            {
+                b.HasData(new List<LongEntity> {new LongEntity {Id = 1}});
+
+                b.OwnsOne(x => x.OwnedEntity).HasData(new List<object>
+                {
+                    new {LongEntityId = 1L, Nothing = string.Empty}
+                });
+            });
         }
     }
 }
